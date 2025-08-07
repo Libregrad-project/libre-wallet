@@ -2,11 +2,15 @@ use eframe::{egui, App, Frame};
 
 pub struct WalletApp {
     show_about: bool,
+    about_window_size: egui::Vec2,
 }
 
 impl Default for WalletApp {
     fn default() -> Self {
-        Self { show_about: false }
+        Self {
+            show_about: false,
+            about_window_size: egui::Vec2::splat(0.4),
+        }
     }
 }
 
@@ -91,17 +95,37 @@ impl App for WalletApp {
 
         // ABOUT POPUP WINDOW
         if self.show_about {
+            let mut open = self.show_about;
+            let mut close_clicked = false;
+
             egui::Window::new("About Libre Wallet")
-                .open(&mut self.show_about)
+                .open(&mut open)
                 .collapsible(false)
-                .resizable(false)
+                .resizable(true)
+                .default_size(egui::vec2(400.0, 200.0))
+                .min_size(egui::vec2(200.0, 100.0))
                 .show(ctx, |ui| {
-                    ui.label("Libre Wallet v0.1");
-                    ui.label("A privacy-focused cryptocurrency wallet.");
-                    ui.label("Built in Rust using the eframe + egui GUI framework.");
+                    ui.vertical_centered(|ui| {
+                        ui.heading("Libre Wallet");
+                        ui.label("v0.1");
+                    });
                     ui.separator();
-                    ui.label("Created by Vyzic");
+                    ui.label("A privacy-focused cryptocurrency wallet.");
+                    ui.add_space(8.0);
+                    ui.label("Built in Rust using eframe/egui.");
+
+                    if ui.button("Close").clicked() {
+                        close_clicked = true;
+                    }
                 });
+
+            if close_clicked {
+                open = false;
+            }
+            self.show_about = open;
         }
+
+
+
     }
 }
