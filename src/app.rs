@@ -7,7 +7,6 @@ pub struct WalletApp {
     show_wallet: bool,
     show_mining: bool,
     show_settings: bool,
-    about_window_size: egui::Vec2,
 }
 
 impl Default for WalletApp {
@@ -19,7 +18,6 @@ impl Default for WalletApp {
             show_wallet: false,
             show_mining: false,
             show_settings: false,
-            about_window_size: egui::Vec2::splat(0.4),
         }
     }
 }
@@ -66,11 +64,13 @@ impl App for WalletApp {
                 }
             });
 
-        // CENTRAL PANEL: You can keep this or show based on active window if you want
+        // CENTRAL PANEL
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Wallet Overview");
-            ui.separator();
-            ui.label("Use the menu to open windows.");
+            ui.vertical_centered_justified(|ui| {
+                ui.heading("Wallet Overview");
+                ui.separator();
+                ui.label("Use the menu on the left to open windows.");
+            });
         });
 
         // BOTTOM PANEL
@@ -80,25 +80,32 @@ impl App for WalletApp {
             });
         });
 
-        // Helper closure to create popups with close button
+        // Helper closure for windows with close button & consistent styling
         let mut show_window = |title: &str, open_flag: &mut bool, default_size: egui::Vec2, content: &dyn Fn(&mut egui::Ui)| {
             let mut open = *open_flag;
             let mut close_clicked = false;
+
             egui::Window::new(title)
                 .open(&mut open)
+                .collapsible(false)
                 .resizable(true)
                 .default_size(default_size)
+                .min_size(egui::vec2(300.0, 150.0))
+                .frame(egui::Frame::window(&ctx.style()).fill(ctx.style().visuals.window_fill()))
                 .show(ctx, |ui| {
                     content(ui);
-                    ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
+                    ui.add_space(10.0);
+                    ui.horizontal_centered(|ui| {
                         if ui.button("Close").clicked() {
                             close_clicked = true;
                         }
                     });
                 });
+
             if close_clicked {
                 open = false;
             }
+
             *open_flag = open;
         };
 
@@ -107,15 +114,14 @@ impl App for WalletApp {
             show_window(
                 "About Libre Wallet",
                 &mut self.show_about,
-                egui::vec2(400.0, 200.0),
+                egui::vec2(400.0, 220.0),
                 &|ui| {
-                    ui.vertical_centered(|ui| {
+                    ui.vertical_centered_justified(|ui| {
                         ui.heading("Libre Wallet");
                         ui.label("v0.1");
                     });
                     ui.separator();
                     ui.label("A privacy-focused cryptocurrency wallet.");
-                    ui.add_space(8.0);
                     ui.label("Built in Rust using eframe/egui.");
                 },
             );
@@ -126,7 +132,7 @@ impl App for WalletApp {
             show_window(
                 "Transactions",
                 &mut self.show_transactions,
-                egui::vec2(600.0, 300.0),
+                egui::vec2(600.0, 350.0),
                 &|ui| {
                     ui.heading("Transaction History");
                     ui.separator();
@@ -140,7 +146,7 @@ impl App for WalletApp {
             show_window(
                 "Dashboard",
                 &mut self.show_dashboard,
-                egui::vec2(600.0, 300.0),
+                egui::vec2(600.0, 350.0),
                 &|ui| {
                     ui.heading("Dashboard");
                     ui.separator();
@@ -154,7 +160,7 @@ impl App for WalletApp {
             show_window(
                 "Wallet",
                 &mut self.show_wallet,
-                egui::vec2(600.0, 300.0),
+                egui::vec2(600.0, 350.0),
                 &|ui| {
                     ui.heading("Wallet");
                     ui.separator();
@@ -168,7 +174,7 @@ impl App for WalletApp {
             show_window(
                 "Mining",
                 &mut self.show_mining,
-                egui::vec2(600.0, 300.0),
+                egui::vec2(600.0, 350.0),
                 &|ui| {
                     ui.heading("Mining");
                     ui.separator();
