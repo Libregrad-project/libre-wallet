@@ -1,6 +1,8 @@
 mod app;
 mod rpc;
 
+use app::WalletApp;
+
 use eframe;
 
 fn main() -> Result<(), eframe::Error> {
@@ -8,6 +10,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Libre Wallet",
         options,
-        Box::new(|_cc| Box::new(app::WalletApp)),
+        Box::new(|_cc| Box::new(WalletApp::default())),
     )
 }
